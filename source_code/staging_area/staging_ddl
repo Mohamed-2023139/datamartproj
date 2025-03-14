@@ -1,0 +1,114 @@
+/*
+===============================================================================
+DDL Script: Create staging Tables
+===============================================================================
+Script Purpose:
+    This script creates tables in the 'staging' schema and dropping existing tables 
+    if they already exist.
+	  Run this script to re-define the DDL structure of 'staging' Tables
+===============================================================================
+*/
+create database bank_db;
+create schema staging_layer;
+IF OBJECT_ID('staging_layer.DimCustomers', 'U') IS NOT NULL
+    DROP TABLE staging_layer.DimCustomers;
+GO
+CREATE TABLE staging_layer.DimCustomers (
+    customer_id INT PRIMARY KEY NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name NVARCHAR(50) NOT NULL,
+    email NVARCHAR(30),
+    address NVARCHAR(255) NOT NULL,
+    city NVARCHAR(50) NOT NULL,
+    state NVARCHAR(30),
+    postal_code NVARCHAR(10) NOT NULL,
+    phone_number NVARCHAR(50)
+);
+Go
+IF OBJECT_ID('staging_layer.DimDate', 'U') IS NOT NULL
+    DROP TABLE staging_layer.DimDate;
+GO
+CREATE TABLE staging_layer.DimDate (
+    date_id INT PRIMARY KEY NOT NULL,
+    date DATE NOT NULL,
+    day INT NOT NULL,
+    month INT NOT NULL,
+    year INT NOT NULL,
+    quarter INT NOT NULL,
+    weekday NVARCHAR(15) NOT NULL
+);
+GO
+IF OBJECT_ID('staging_layer.DimCurrency', 'U') IS NOT NULL
+    DROP TABLE staging_layer.DimCurrency;
+GO
+CREATE TABLE staging_layer.DimCurrency (
+    currency_id INT PRIMARY key not null, 
+    name NVARCHAR(255) NOT NULL,
+    iso3_code NVARCHAR(3) NOT NULL,
+    active BIT NOT NULL
+);
+GO
+IF OBJECT_ID('staging_layer.DimAccount', 'U') IS NOT NULL
+    DROP TABLE staging_layer.DimAccount;
+GO
+CREATE TABLE staging_layer.DimAccount (
+    account_id INT PRIMARY KEY NOT NULL,
+    account_number NVARCHAR(20) NOT NULL,
+    customer_id NVARCHAR(50) NOT NULL,
+    account_type NVARCHAR(30) NOT NULL,
+    account_balance DECIMAL(18,2) NOT NULL,
+    credit_score INT NOT NULL
+);
+GO
+IF OBJECT_ID('staging_layer.DimLocationt', 'U') IS NOT NULL
+    DROP TABLE staging_layer.DimLocation;
+GO
+CREATE TABLE staging_layer.DimLocation (
+    location_id INT PRIMARY KEY NOT NULL,
+    address NVARCHAR(255) NOT NULL,
+    city NVARCHAR(50) NOT NULL,
+    state NVARCHAR(30),
+    country NVARCHAR(50) NOT NULL
+);
+GO
+IF OBJECT_ID('staging_layer.FactTransactions', 'U') IS NOT NULL
+    DROP TABLE staging_layer.FactTransactions;
+GO
+CREATE TABLE staging_layer.FactTransactions (
+    transaction_id INT PRIMARY KEY NOT NULL,
+    customer_id INT NOT NULL,
+    txn_date_id INT NOT NULL,
+    channel_id INT NOT NULL,
+    txn_type_id INT NOT NULL,
+    location_id INT NOT NULL,
+    currency_id INT NOT NULL,
+    loan_id INT,
+    investment_type_id INT,
+    txn_amount DECIMAL(18,2) NOT NULL,
+    txn_status NVARCHAR(15),
+);
+GO
+IF OBJECT_ID('staging_layer.FactDailyBalances', 'U') IS NOT NULL
+    DROP TABLE staging_layer.FactDailyBalances;
+GO
+CREATE TABLE staging_layer.FactDailyBalances (
+    balance_id INT PRIMARY KEY NOT NULL,
+    date_id INT NOT NULL,
+    account_id INT NOT NULL,
+    opening_balance DECIMAL(18,2) NOT NULL,
+    closing_balance DECIMAL(18,2) NOT NULL,
+    average_balance DECIMAL(18,2) NOT NULL,
+);
+GO
+IF OBJECT_ID('staging_layer.FactInvestments', 'U') IS NOT NULL
+    DROP TABLE staging_layer.FactInvestments;
+GO
+CREATE TABLE staging_layer.FactInvestments (
+    investment_id INT PRIMARY KEY NOT NULL,
+    date_id INT NOT NULL,
+    investment_type_id INT NOT NULL,
+    account_id INT NOT NULL,
+    amount_invested DECIMAL(18,2) NOT NULL,
+    investment_return DECIMAL(18,2) NOT NULL,
+);
+GO
